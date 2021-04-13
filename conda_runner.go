@@ -8,6 +8,7 @@ import (
 	"github.com/paketo-buildpacks/packit/pexec"
 )
 
+//go:generate faux --interface Executable --output fakes/executable.go
 type Executable interface {
 	Execute(pexec.Execution) error
 }
@@ -22,9 +23,19 @@ func NewCondaRunner(executable Executable) CondaRunner {
 	}
 }
 
-func (c CondaRunner) Execute(condaEnvPath string, condaCachePath string, workingDir string) error {
-	return c.executable.Execute(pexec.Execution{
-		Args: []string{"env", "update", "--prefix", condaEnvPath, "--file", filepath.Join(workingDir, "environment.yml")},
-		Env:  append(os.Environ(), fmt.Sprintf("CONDA_PKGS_DIRS=%s", condaCachePath)),
+func (c CondaRunner) Execute(condaLayerPath string, condaCachePath string, workingDir string) error {
+	err := c.executable.Execute(pexec.Execution{
+		Args: []string{
+			"env",
+			"update",
+			"--prefix", condaLayerPath,
+			"--file", filepath.Join(workingDir, "environment.yml"),
+		},
+		Env: append(os.Environ(), fmt.Sprintf("CONDA_PKGS_DIRS=%s", condaCachePath)),
 	})
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

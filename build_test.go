@@ -84,5 +84,6 @@ func testBuild(t *testing.T, context spec.G, it spec.S) {
 
 		Expect(runner.ExecuteCall.Receives.CondaEnvPath).To(Equal(expectedCondaLayer.Path))
 		Expect(runner.ExecuteCall.Receives.CondaCachePath).To(Equal(expectedCondaCacheLayer.Path))
+		Expect(runner.ExecuteCall.Receives.WorkingDir).To(Equal(workingDir))
 	})
 }
